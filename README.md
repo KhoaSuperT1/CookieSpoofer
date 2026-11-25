@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src=".github/logo.jpg" alt="Java-Cookieee" width="180" />
+
 # CookieSpoofer
 
 **Plugin cloaking, fake plugin spoofing, and command-tree filtering for Paper, Folia, and Spigot.**
