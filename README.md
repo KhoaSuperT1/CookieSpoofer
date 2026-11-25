@@ -1,13 +1,13 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/🛡️_PluginSpoofer-v1.1.0-000000?style=for-the-badge&labelColor=1a1a2e" alt="PluginSpoofer">
+  <img src="https://img.shields.io/badge/🛡️_CookieSpoofer-v1.1.0-000000?style=for-the-badge&labelColor=1a1a2e" alt="CookieSpoofer">
 </p>
 
-<h1 align="center">PluginSpoofer</h1>
+<h1 align="center">CookieSpoofer</h1>
 
 <p align="center">
   <b>Plugin Cloaking, Spoofing & Anti-Reconnaissance Engine for Paper, Folia & Spigot 1.21 – 1.26.3</b>
   <br>
-  <sub>Completely conceal real backend plugins (Anticheats, Auth, CoreProtect) and broadcast believable fake plugin graphs to defeat cheat client scanners (Meteor, LiquidBounce, Wurst, ThunderHack, BleachHack, UI-Utils).</sub>
+  <sub>Conceal real backend plugins (Anticheats, Auth, CoreProtect) and broadcast believable fake plugin graphs against cheat client scanners (Meteor, LiquidBounce, Wurst, ThunderHack, BleachHack, UI-Utils).</sub>
 </p>
 
 <p align="center">
@@ -27,7 +27,8 @@
 ---
 
 > [!WARNING]
-> **⚠️ Notice:** This plugin was built **~60% by Vibe Coding**. Unexpected edge-cases may exist.
+> **⚠️ Notice (~80% AI-Assisted & Not Live-Tested):**
+> Roughly **80%** of **CookieSpoofer** (built from the `PluginSpoofer` codebase) was written using AI assistance, and **it has NOT been tested on a live Minecraft server yet** (only automated unit tests and compilation checks against Paper 1.21.4 and 26.3 have been run). Unexpected edge cases may exist—please test thoroughly on a local/staging server before using in production.
 > If you encounter any issues or have questions, join our **Discord** for support:
 > **👉 [discord.gg/KNW2QPjzCV](https://discord.gg/KNW2QPjzCV)**
 

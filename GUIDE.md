@@ -1,16 +1,19 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/PluginSpoofer-v1.1.0--Release-FF4444?style=for-the-badge&logo=minecraft&logoColor=white" alt="Version">
+  <img src="https://img.shields.io/badge/CookieSpoofer-v1.1.0--Release-FF4444?style=for-the-badge&logo=minecraft&logoColor=white" alt="Version">
   <img src="https://img.shields.io/badge/Platform-Paper_%7C_Folia_%7C_Spigot_1.21--1.26.3-16a34a?style=for-the-badge&logo=minecraft&logoColor=white" alt="Paper, Folia & Spigot">
   <img src="https://img.shields.io/badge/Java-21%20%2F%2025-f97316?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java">
   <img src="https://img.shields.io/badge/Author-Khoa-8b5cf6?style=for-the-badge" alt="Author">
 </p>
 
-<h1 align="center">📖 PluginSpoofer — Full Setup, Hardening & Operation Guide</h1>
+<h1 align="center">📖 CookieSpoofer — Full Setup, Hardening & Operation Guide</h1>
 
 <p align="center">
   <b>Plugin Cloaking & Anti-Reconnaissance Guide for Paper, Folia & Spigot 1.21 – 1.26.3</b><br>
   <em>Conceal backend infrastructure, spoof fake command graphs, and neutralize automated cheat scanners.</em>
 </p>
+
+> [!WARNING]
+> **Notice (~80% AI & Untested Live):** Roughly **80%** of CookieSpoofer was written with AI assistance and has **not** been tested on a live Minecraft server yet (only unit tests and API compilation checks were run). Test on staging first. (Note: internal plugin name/commands remain `/pluginspoofer` and `plugins/PluginSpoofer/`.)
 
 <p align="center">
   <a href="#-quick-start">⚡ Quick Start</a> ·
