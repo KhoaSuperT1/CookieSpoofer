@@ -1,96 +1,49 @@
-<p align="center">
-  <img src="https://img.shields.io/badge/CookieSpoofer-v1.1.0--Release-FF4444?style=for-the-badge&logo=minecraft&logoColor=white" alt="Version">
-  <img src="https://img.shields.io/badge/Platform-Paper_%7C_Folia_%7C_Spigot_1.21--1.26.3-16a34a?style=for-the-badge&logo=minecraft&logoColor=white" alt="Paper, Folia & Spigot">
-  <img src="https://img.shields.io/badge/Java-21%20%2F%2025-f97316?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java">
-  <img src="https://img.shields.io/badge/Author-Khoa-8b5cf6?style=for-the-badge" alt="Author">
-</p>
+<div align="center">
 
-<h1 align="center">📖 CookieSpoofer — Full Setup, Hardening & Operation Guide</h1>
+# CookieSpoofer — Setup & Hardening Guide
 
-<p align="center">
-  <b>Plugin Cloaking & Anti-Reconnaissance Guide for Paper, Folia & Spigot 1.21 – 1.26.3</b><br>
-  <em>Conceal backend infrastructure, spoof fake command graphs, and neutralize automated cheat scanners.</em>
-</p>
+**Configuration, command-filter tuning, and server hardening notes for Paper, Folia, and Spigot (`1.21 – 1.26.3`).**
+
+[![Version](https://img.shields.io/badge/Version-1.1.0-dc2626?style=flat-square)](https://github.com/KhoaSuperT1/CookieSpoofer)
+[![Platform](https://img.shields.io/badge/Platform-Paper%20%7C%20Folia%20%7C%20Spigot-334155?style=flat-square)](https://papermc.io)
+
+[Back to README](README.md) · [Support Discord](https://discord.gg/NZycRMWrSS)
+
+</div>
+
+---
 
 > [!WARNING]
-> **Notice (~80% AI & Untested Live):** Roughly **80%** of CookieSpoofer was written with AI assistance and has **not** been tested on a live Minecraft server yet (only unit tests and API compilation checks were run). Test on staging first. (Note: internal plugin name/commands remain `/pluginspoofer` and `plugins/PluginSpoofer/`.)
+> **Notice (~80% AI & Untested Live):**
+> Roughly **80%** of CookieSpoofer was written with AI assistance and has **not** been tested on a live Minecraft server yet (only 17/17 JUnit 5 unit tests and Paper 1.21.4 / 26.3 compilation checks have been run). Test on a local or staging server first. Internal plugin name, commands, and folder remain `PluginSpoofer` / `/pluginspoofer`.
 
-<p align="center">
-  <a href="#-quick-start">⚡ Quick Start</a> ·
-  <a href="#-overview">🔍 Overview</a> ·
-  <a href="#-architecture--packet-flow">🏗️ Architecture</a> ·
-  <a href="#-configuration-deep-dive">⚙️ Configuration</a> ·
-  <a href="#-anti-reconnaissance-server-hardening">🛡️ Server Hardening</a> ·
-  <a href="#-cheat-client-testing--verification">🧪 Testing Guide</a> ·
-  <a href="#-troubleshooting--faq">🔧 FAQ</a>
-</p>
+## Quick Start
 
----
+1. Drop `PluginSpoofer-1.1.0.jar` into your server's `plugins/` folder.
+2. Start the server once to generate `plugins/PluginSpoofer/config.yml`.
+3. Pick `mode: "SPOOF"` or `mode: "HIDE"` in `config.yml`.
+4. Run `/pluginspoofer reload` to apply changes without restarting.
 
-## ⚡ Quick Start
-
-Follow these 4 simple steps to install and deploy PluginSpoofer:
+## How Packet & Command Filtering Flows
 
 ```text
-1. Place PluginSpoofer-1.1.0.jar    →  plugins/
-2. Start or Restart Server          →  Default config.yml is generated automatically
-3. Configure Mode ("SPOOF" / "HIDE") →  plugins/PluginSpoofer/config.yml
-4. Reload Configuration             →  Execute /pluginspoofer reload  ✅
+1. Join / Sync  : Server builds Brigadier tree -> L1 strips real ':' & unauthorized nodes, injects fake namespaces
+2. Tab Complete : Client probes '/ver '        -> L2 returns fake plugins (SPOOF) or empty list (HIDE)
+3. Command Run  : Client runs '/grim reload'   -> L3/L4 unwraps '/execute', matches blacklist/hidden/perms -> Vanilla unknown error
+4. Chat / Chan  : Client sends '.plugins'      -> L5/L6 drops chat prefix or monitors channel & alerts staff
 ```
 
----
-
-## 🔍 Overview
-
-When a player connects to your Minecraft server, the server and client exchange several packets revealing your server ecosystem:
-1. **`ClientboundCommandsPacket`**: Contains the complete graph of available commands. Real plugins automatically register `plugin:command` namespaces.
-2. **`ServerboundCommandSuggestionPacket`**: When a player presses `<Tab>`, completions are returned for `/ver `, `/about `, or `/plugins `.
-3. **Command Preprocessing & Error Channels**: Probing invalid or restricted commands exposes plugin brand identity through distinct permission error messages.
-
-**`PluginSpoofer`** acts as a transparent network filter between your server engine and incoming player connections, sanitizing every packet in real-time while providing believable fake metadata.
-
----
-
-## 🏗️ Architecture & Packet Flow
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Player as 🎮 Player / Cheat Client
-    participant Netty as 🌐 Network Layer (Netty)
-    participant PS as 🛡️ PluginSpoofer Engine
-    participant Bukkit as ⚙️ Paper / Folia Core
-
-    Note over Player, Bukkit: Phase 1: Login & Command Tree Synchronization
-    Bukkit->>PS: ClientboundCommandsPacket (Full Brigadier Graph)
-    PS->>PS: Strip ':' colon commands & hidden plugin nodes
-    PS->>PS: Inject fake nodes (worldedit:wand, essentials:spawn)
-    PS->>Player: Send Cloaked Command Graph
-
-    Note over Player, Bukkit: Phase 2: Tab-Completion Probe (/ver <tab>)
-    Player->>PS: ServerboundCommandSuggestionPacket ("/ver ")
-    alt Mode == SPOOF
-        PS-->>Player: Return Fake Plugins (WorldEdit, Essentials, Vault, LuckPerms)
-    else Mode == HIDE
-        PS-->>Player: Return Empty Completions ([])
-    end
-
-    Note over Player, Bukkit: Phase 3: Direct Command / Oracle Probe (/grim reload)
-    Player->>PS: ServerboundChatCommandPacket ("grim reload")
-    PS->>PS: Recursive Unwrap (/execute run ...) & Blacklist Check
-    PS-->>Player: Return Vanilla Unknown Command Error (Normalized)
-```
-
----
-
-## ⚙️ Configuration Deep Dive
+## Configuration Breakdown
 
 ### 1. Operation Modes (`mode`)
-* **`SPOOF` (Recommended)**: Returns believable fake plugins for `/plugins`, `/ver <plugin>`, `/ver <tab>`, and injects fake namespace commands into the client's Brigadier tree. Hack clients like Meteor will report that your server is running standard utilities (`WorldEdit`, `Essentials`, `Vault`, `LuckPerms`).
-* **`HIDE`**: Returns standard Vanilla unknown command errors for everything. Tab-completion returns no suggestions.
 
-### 2. Fake Plugins Schema (`fake-plugins`)
-Each entry in `fake-plugins` defines how the spoofed plugin appears to players and scanners:
+- **`SPOOF` (Default):** Responds to `/plugins` and `/ver <FakePlugin>` with configured fake plugins, suggests fake plugins on `/ver <tab>`, and injects fake namespace nodes (`worldedit:wand`, `essentials:spawn`) into the Brigadier command graph.
+- **`HIDE`:** Strips plugin info completely and returns the standard vanilla `Unknown or incomplete command` error with empty tab completions.
+
+### 2. Fake Plugins (`fake-plugins`)
+
+Keep the fake list plausible for your server type (Survival, Skyblock, SMP) and make sure `fake-commands` match plugins your server might reasonably run:
+
 ```yaml
 fake-plugins:
   - name: "WorldEdit"
@@ -104,69 +57,55 @@ fake-plugins:
       - "worldedit:paste"
 ```
 
-### 3. Advanced Command Filter (`command-filter`)
-* **`block-response-mode`**:
-  * `VANILLA_UNKNOWN`: Emulates the authentic Vanilla 1.21+ command error (`§cUnknown or incomplete command, see below for error§r\n§c<--[HERE]§r`).
-  * `CUSTOM`: Sends `custom-block-message`.
-* **`blocked-commands`**: Case-insensitive list of commands to block.
-* **`blocked-patterns`**: Regex patterns matching prohibited command roots (e.g. `^(bukkit|minecraft|spigot|paper):.*`).
-* **`blocked-prefixes`**: Intercepts chat messages starting with cheat client prefixes (`.`, `#`, `@`, `,`, `;`, `!`).
-* **`unwrap-execute-commands`**: Recursively unwraps commands wrapped in `/execute as @p run ...` or `/minecraft:execute ...`.
+### 3. Command Filter (`command-filter`)
+
+- `block-response-mode`:
+  - `VANILLA_UNKNOWN`: Sends the exact vanilla error (`&cUnknown or incomplete command, see below for error\n&c<--[HERE]`) so probes cannot tell a blocked command from a nonexistent one.
+  - `CUSTOM`: Sends `custom-block-message`.
+- `blocked-commands`: Case-insensitive exact root/command blocklist.
+- `blocked-patterns`: Regex blocklist (default blocks `^(bukkit|minecraft|spigot|paper):.*`).
+- `blocked-prefixes`: Cancels normal chat messages starting with client command prefixes (`.`, `#`, `@`, `,`, `;`, `!`).
+- `unwrap-execute-commands`: Unwraps nested `/execute ... run ...` chains before evaluating filters.
+
+### 4. Strict Permission Cloaking (`strict-permission-cloaking`)
+
+- `hide-unauthorized-commands`: Removes commands from the Brigadier tree when `registeredCmd.testPermissionSilent(player)` is false.
+- `mask-no-permission-errors`: Intercepts commands the player has no permission for and replaces the denial with the configured unknown command message.
+
+## Extra Server Hardening (Outside the Plugin)
+
+CookieSpoofer only controls in-game command/chat/channel surfaces. Combine it with these server settings:
+
+1. **Disable UDP Query (`server.properties`):**
+   ```properties
+   enable-query=false
+   ```
+   When `enable-query=true`, external tools can query the server's UDP port directly for the real plugin list.
+
+2. **Rate-Limit Tab Completions (`config/paper-global.yml`):**
+   ```yaml
+   command-suggestion:
+     max-completions-per-second: 10
+   ```
+
+3. **Verify Without OP:**
+   Players with `pluginspoofer.bypass` (default `op`) see the real plugin list and command tree. Always test with a non-OP account that does not have `pluginspoofer.bypass`.
+
+## Expected Behavior Matrix (Unit-Test Verified)
+
+| Probe | Expected Behavior |
+| :--- | :--- |
+| `/plugins` or `/pl` | Shows formatted `fake-plugins` (`SPOOF`) or unknown command (`HIDE`). |
+| `/ver WorldEdit` | Shows fake `WorldEdit` version lines (`SPOOF`). |
+| `/ver GrimAC` | Returns `This server is not running any plugin by that name.` (`SPOOF`) or unknown command (`HIDE`). |
+| `/execute as @p run ver WorldEdit` | Unwraps and handles `ver WorldEdit` as above. |
+| `/grim reload` (no permission) | Normalized to vanilla unknown command error. |
+| `.plugins` in chat | Chat cancelled and staff alerted. |
+
+## Support
+
+- **Discord:** https://discord.gg/NZycRMWrSS
 
 ---
 
-## 🛡️ Anti-Reconnaissance Server Hardening
-
-To achieve 100% defense against all possible reconnaissance techniques, apply these additional best practices:
-
-### 1. Disable GameSpy4 UDP Query in `server.properties`
-If `enable-query=true`, clients can query the server's UDP port directly to dump the real plugin list without connecting to the server.
-```properties
-# Set to false to prevent UDP Query plugin leaks
-enable-query=false
-```
-
-### 2. Protect Resource Pack Ports (ItemsAdder / Oraxen)
-If using plugins that host resource packs on separate HTTP ports (e.g. `8888`), ensure the port is reverse-proxied or behind Cloudflare/TCPShield so that attackers cannot uncover your backend Origin IP or unpack plugin asset directories.
-
-### 3. Adjust Tab Completion Limits in `paper-global.yml`
-Rate limit command suggestion spam to protect server tick rate:
-```yaml
-command-suggestion:
-  max-completions-per-second: 10
-```
-
----
-
-## 🧪 Cheat Client Testing & Verification
-
-| Client / Tool | Attack Command | Expected Result with PluginSpoofer |
-|:---|:---|:---|
-| **Meteor Client** | `.server plugins` | Displays only configured fake plugins (`WorldEdit`, `Essentials`, `Vault`, `LuckPerms`). |
-| **LiquidBounce** | `Plugins` exploit module | Receives spoofed colon suggestions or empty list. |
-| **Wurst 7** | `.plugins` command | Displays spoofed plugin list. |
-| **UI-Utils** | Tab suggestion probe | Yields only fake suggestions. |
-| **Manual Probe** | `/ver GrimAC`, `/grim reload` | Returns standard Vanilla `Unknown or incomplete command` error. |
-| **Wrapper Bypass** | `/execute as @p run ver WorldEdit` | Unwraps cleanly and returns fake `WorldEdit` version info. |
-| **Chat Prefix Macro** | `.plugins` in regular chat | Chat is cancelled and player receives unknown command error. |
-
----
-
-## 🔧 Troubleshooting & FAQ
-
-### Q: Why do OP players see real plugins?
-**A:** Players with the permission `pluginspoofer.bypass` (granted to OPs by default) bypass all cloaking. To test cloaking on an operator account, temporarily `/deop` your account or revoke `pluginspoofer.bypass`.
-
-### Q: How do I reload changes made to `config.yml`?
-**A:** Run `/pluginspoofer reload` in-game or via console. All caches and configurations will update without requiring a server restart.
-
-### Q: Does PluginSpoofer cause lag or impact TPS?
-**A:** No. PluginSpoofer uses compiled regex patterns, immutable sets, and thread-safe models with $O(1)$ lookup complexity, making it fully asynchronous and Folia multi-threaded safe.
-
----
-
-<p align="center">
-  <sub>For questions, bug reports, and updates, join our <b>Discord: <a href="https://discord.gg/NZycRMWrSS">https://discord.gg/NZycRMWrSS</a></b></sub>
-  <br>
-  <sub>Made with love and care by <b>Java-Cookieee</b> &amp; AI.</sub>
-</p>
+<div align="center"><sub>Made with love and care by <b>Java-Cookieee</b> &amp; AI.</sub></div>
