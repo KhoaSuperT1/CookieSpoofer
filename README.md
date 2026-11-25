@@ -30,7 +30,7 @@
 > **⚠️ Notice (~80% AI-Assisted & Not Live-Tested):**
 > Roughly **80%** of **CookieSpoofer** (built from the `PluginSpoofer` codebase) was written using AI assistance, and **it has NOT been tested on a live Minecraft server yet** (only automated unit tests and compilation checks against Paper 1.21.4 and 26.3 have been run). Unexpected edge cases may exist—please test thoroughly on a local/staging server before using in production.
 > If you encounter any issues or have questions, join our **Discord** for support:
-> **👉 [discord.gg/KNW2QPjzCV](https://discord.gg/KNW2QPjzCV)**
+> **👉 [https://discord.gg/NZycRMWrSS](https://discord.gg/NZycRMWrSS)**
 
 ---
 
@@ -423,10 +423,16 @@ The compiled jar artifact will be generated at: `target/PluginSpoofer-1.1.0.jar`
 
 ---
 
+## 💬 Support & Community
+
+- **Discord**: https://discord.gg/NZycRMWrSS
+
+---
+
 ## 📄 License
 
 This project is licensed under the **MIT License**.
 
 <p align="center">
-  <sub>Built with ❤️ for Minecraft Server Security by Khoa</sub>
+  <sub>Made with love and care by <b>Java-Cookieee</b> &amp; AI.</sub>
 </p>

@@ -166,5 +166,7 @@ command-suggestion:
 ---
 
 <p align="center">
-  <sub>For questions, bug reports, and updates, join our <b>Discord: <a href="https://discord.gg/KNW2QPjzCV">discord.gg/KNW2QPjzCV</a></b></sub>
+  <sub>For questions, bug reports, and updates, join our <b>Discord: <a href="https://discord.gg/NZycRMWrSS">https://discord.gg/NZycRMWrSS</a></b></sub>
+  <br>
+  <sub>Made with love and care by <b>Java-Cookieee</b> &amp; AI.</sub>
 </p>
